@@ -1,146 +1,265 @@
 # Citation-Critical RAG
 
-**Not summaries. Proof.**
+**A private core engine for answers that need evidence, not just confidence.**
 
-![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?style=flat-square) ![React](https://img.shields.io/badge/React-frontend-61DAFB?style=flat-square) ![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)
+![Status](https://img.shields.io/badge/status-private%20MVP-6f63ff?style=flat-square)
+![Use case](https://img.shields.io/badge/use%20case-citation%20traceability-111827?style=flat-square)
+![Backend](https://img.shields.io/badge/backend-FastAPI-009688?style=flat-square)
+![Frontend](https://img.shields.io/badge/frontend-React-61DAFB?style=flat-square)
+![License](https://img.shields.io/badge/license-proprietary-red?style=flat-square)
+
+Most AI document systems can produce a fluent answer.
+
+Citation-critical work needs something harder: the exact supporting text, from the exact document location, with enough traceability for an auditor, reviewer, counsel, regulator, or risk team to verify it.
+
+This project is a private core engine for regulated-document question answering where citations are evidence, not decoration.
+
+> Public note: this repository is intentionally a showcase and architecture overview. The core implementation, client data, prompts, retrieval internals, model choices, indexing schema, and production pipeline details are private.
+
+---
+
+## Demo Preview
+
+The public demo uses synthetic banking/compliance content so the product can be shown without exposing restricted client material.
+
+### Pipeline observability
+
+![Pipeline observability](docs/assets/pipeline-observatory.png)
+
+### Citation answer with source traceability
+
+![Citation chat](docs/assets/citation-chat.png)
+
+### Answer-focused view
+
+![Citation answer](docs/assets/citation-answer.png)
 
 ---
 
 ## The Problem
 
-Organizations working with large volumes of regulatory, compliance, or legal documents face a specific and consequential failure with current AI tools. Popular enterprise tools and custom-built RAG pipelines return answers that read fluently and cite sources. They name a document. Sometimes a page number. But they cannot return the exact sentence, from the exact section, on the exact page — verbatim, traceable, provable.
+In regulated domains, a citation is not a footnote. It is the evidence trail.
 
-The answer is rephrased. The citation is decorative.
+Generic RAG systems often fail in ways that look acceptable in a demo but break down under review:
 
-In domains where documents are the source of truth and citations are evidence — this is not acceptable. Nuclear regulatory, pharmaceutical, legal, financial compliance, defense procurement. Any domain where a wrong citation has consequences beyond inconvenience. Where an auditor, a regulator, or a court will ask: where exactly does it say that? And the answer must be a precise location in a primary document, not a confident paraphrase of one.
+- The answer is paraphrased instead of extracted.
+- The cited source is too broad to verify quickly.
+- Page, section, subsection, and document lineage are incomplete.
+- Retrieved fragments lose the surrounding document structure.
+- The system answers even when the exact support is not present.
 
-Current tools are not built for this requirement. They are built for convenience. Convenience is not the same as correctness, and in citation-critical domains, the difference matters.
-
----
-
-## What This System Does
-
-This system ingests structured regulatory documents and makes them queryable with exact citation fidelity. Every answer is verbatim text pulled directly from the source document. Every answer carries the exact section number, section title, and page number. Nothing is paraphrased. Nothing is synthesized. If the answer is not present in the document, the system returns nothing — not a guess, not a rephrasing, nothing.
+That is risky for compliance, legal, audit, policy, procurement, financial services, pharma, defense, and other document-heavy workflows where the source text is the authority.
 
 ---
 
-## The Hard Problems
+## What This Engine Is Built To Do
 
-**Document structure preservation**
-Regulatory documents have five or more levels of hierarchy — chapters, sections, subsections, tables, bullet lists. Standard parsers flatten this into plain text, discarding all structural information. Every element must be preserved with its complete lineage intact.
+Citation-Critical RAG is designed to turn long structured documents into a queryable evidence layer.
 
-**Intelligent chunking with full traceability**
-Token-based chunking cuts mid-sentence, mid-regulation, mid-table. Every chunk must know its exact position in the document hierarchy — which section, which subsection, which page — and carry that information as structured metadata, not as an afterthought.
+It focuses on:
 
-**Document connectivity**
-Every element of a regulatory document is connected to every other relevant element. A retrieved fragment must carry enough context to know where it sits in the broader document — what surrounds it, what it belongs to, what it qualifies. Disconnected fragments produce disconnected answers.
+- Preserving document hierarchy instead of flattening everything into plain text.
+- Keeping page, section, subsection, title, document, authority, and domain metadata attached to evidence.
+- Retrieving the most relevant evidence units with their surrounding context.
+- Returning verbatim supporting text where possible.
+- Showing source cards that make review fast and inspectable.
+- Avoiding unsupported answers when the source evidence is not available.
 
-**Domain-aware retrieval**
-Generic embedding models do not understand domain-specific terminology. Regulatory acronyms, technical standards, citation formats are domain language. Retrieval must understand this language, not treat it as rare tokens that dilute semantic signal.
-
-**Verbatim extraction enforcement**
-Every language model wants to paraphrase. Enforcing verbatim extraction at the output layer while maintaining retrieval quality requires specific architectural choices at every stage of the pipeline — not just at the final generation step.
-
-**Citation validation**
-The system must verify that every returned citation actually exists verbatim in the retrieved source. Hallucinated citations — confident answers that cannot be traced back to the source — are worse than no answer. They create false evidence.
+The goal is not to replace expert review. The goal is to make expert review faster, more traceable, and less dependent on manually hunting through long documents.
 
 ---
 
-## Architecture
+## What Makes This Different From A Basic RAG Demo
 
-```
-Document Input
-      ↓
-Document Parser — structure preserved
-      ↓
-Intelligent Chunker — hierarchy maintained
-      ↓
-Metadata Enrichment — full traceability attached
-      ↓
-Domain Classification — content categorized
-      ↓
-Intelligent Embedding — domain-aware representation
-      ↓
-Vector Storage — metadata indexed
-      ↓
-Intelligent Retrieval — precision-optimized search
-      ↓
-Verbatim Extraction — exact citation returned
-      ↓
-Citation Output — section, page, verbatim text
-```
+Basic RAG usually treats a document as text to search.
 
-Each stage is a deliberate architectural decision. Implementation is proprietary.
+This engine treats a document as a structured source of authority.
+
+| Requirement | Basic document chat | Citation-critical engine |
+|---|---|---|
+| Document structure | Often flattened | Preserved as part of retrieval context |
+| Citations | Often decorative | Treated as the primary output contract |
+| Answers | Often summarized | Designed around verbatim evidence |
+| Source location | Sometimes broad | Section, subsection, page, document |
+| Review workflow | User must verify manually | Evidence is surfaced beside the answer |
+| Domain fit | Generic | Configured per regulated corpus |
 
 ---
 
-## Sample Output
+## Public-Safe Architecture
 
-The distinction is not subtle.
+The full implementation is private, but the operating shape is simple to understand:
 
-**What generic RAG returns:**
-
+```text
+Structured document
+        |
+        v
+Structure normalization
+        |
+        v
+Traceable content segmentation
+        |
+        v
+Metadata attachment and quality checks
+        |
+        v
+Searchable evidence index
+        |
+        v
+Filtered evidence retrieval
+        |
+        v
+Verbatim citation extraction
+        |
+        v
+Answer with source cards
 ```
-"The fuel system meets applicable regulatory requirements
-with appropriate safety margins maintained during normal
-operations and anticipated operational occurrences."
 
-Document: ML20205L411 | Page: 4
-```
+The public observability layer exposes high-level progress only: loaded, normalized, segmented, metadata attached, quality checks completed, search index ready, and citation engine ready.
 
-**What this system returns:**
-
-```
-Section 4.2.3 "Regulatory Basis", Page 4-3:
-
-"GDC 27, Combined Reactivity Control Systems Capability,
-as it relates to the reactivity control systems being
-designed with appropriate margin and, in conjunction with
-the ECCS, being capable of controlling reactivity to
-maintain the capability of cooling the core under
-postulated accident conditions"
-
-Section 4.2.3 "Regulatory Basis", Page 4-3:
-
-"GDC 35, Emergency Core Cooling, as it relates to
-designing the reactor fuel system such that the
-performance of the ECCS will not be compromised
-following a postulated accident"
-```
+It intentionally does not expose proprietary mechanics.
 
 ---
 
-## Applicability
+## Example Outputs
 
-This system is domain-agnostic at the architectural level. The parsing, chunking, hierarchy preservation, and extraction layers work for any structured document corpus. Domain-specific components — classification rules, embedding models, metadata schema — are configurable per deployment.
+The examples below use synthetic compliance text. They are meant to show the output contract: not "probably correct", but traceable to an exact document location.
 
-Applicable wherever documents are the source of truth and citations are evidence:
+### Example 1: Vendor onboarding
 
-- Nuclear regulatory
-- Pharmaceutical and clinical
-- Legal and compliance
-- Financial regulation
-- Defense and procurement
+```text
+What controls are required before onboarding a high-risk vendor?
+```
+
+Generic AI / basic RAG might return:
+
+```text
+High-risk vendors require enhanced due diligence, approval, and documented control checks before onboarding.
+```
+
+Citation-Critical RAG returns:
+
+```text
+Section 5.2 "Enhanced Due Diligence",
+Subsection 5.2.1 "High-Risk Vendor Review", Page 31
+
+"High-risk vendors must not be onboarded until enhanced due diligence is completed, documented, and approved by the designated control owner."
+
+Section 5.2 "Enhanced Due Diligence",
+Subsection 5.2.2 "Required Control Evidence", Page 32
+
+- The vendor risk assessment must identify service criticality, data access level, geographic exposure, and dependency on subcontractors.
+- The business owner must obtain evidence of information security controls, financial stability, business continuity capability, and sanctions screening.
+- Legal and compliance review must be completed before contract execution when the vendor handles confidential customer or transaction data.
+- Any unresolved control gaps must be recorded with an accountable owner, target remediation date, and risk acceptance approval.
+```
+
+### Example 2: Policy exceptions
+
+```text
+Who can approve a policy exception?
+```
+
+Generic AI / basic RAG might return:
+
+```text
+Policy exceptions usually need approval from compliance or a risk owner.
+```
+
+Citation-Critical RAG returns:
+
+```text
+Section 7.4 "Policy Exceptions",
+Subsection 7.4.2 "Approval Authority", Page 58
+
+"Exceptions to mandatory controls must be approved by the accountable business owner, the control owner, and Compliance before the exception becomes active."
+
+Section 7.4 "Policy Exceptions",
+Subsection 7.4.3 "Exception Register", Page 59
+
+"Each approved exception must include a documented business justification, expiration date, compensating control, and named accountable owner."
+```
+
+### Example 3: Evidence review
+
+```text
+How often should high-risk vendors be reviewed?
+```
+
+Generic AI / basic RAG might return:
+
+```text
+High-risk vendors should be reviewed regularly, typically once per year.
+```
+
+Citation-Critical RAG returns:
+
+```text
+Section 6.1 "Ongoing Monitoring",
+Subsection 6.1.3 "Periodic Review", Page 44
+
+"High-risk vendors must be reviewed at least annually, or sooner when a material service, control environment, or ownership change is identified."
+
+Section 6.1 "Ongoing Monitoring",
+Subsection 6.1.4 "Monitoring Evidence", Page 45
+
+"Monitoring evidence must include updated risk ratings, control attestations, issue status, and confirmation that residual risk remains within approved tolerance."
+```
+
+This is the behavior the engine is designed around: exact location, exact source language, and evidence that can be reviewed.
 
 ---
 
-## Status
+## Where This Fits
 
-| Component | Status |
-|-----------|--------|
-| Core pipeline | ✅ Complete |
-| NRC document corpus | ✅ Validated |
-| End-to-end citation extraction | ✅ Validated |
-| Multi-regulatory body support | 🔄 In progress |
-| Production deployment | 🔄 In progress |
+This pattern is useful anywhere documents are the source of truth:
+
+- Financial compliance and policy review
+- Vendor risk and third-party risk management
+- Legal and contract review
+- Pharmaceutical and clinical documentation
+- Internal audit and control evidence
+- Defense, procurement, and regulated operations
+- Technical regulatory review
+
+The architecture is domain-adaptable, but not magic. Each serious deployment needs corpus-specific metadata, parsing assumptions, evaluation, and validation.
+
+---
+
+## Current Status
+
+This is a working private MVP, not a public open-source library.
+
+| Area | Status |
+|---|---|
+| Core document pipeline | Working private implementation |
+| Citation extraction | Working private implementation |
+| Filtered retrieval | Working private implementation |
+| Demo API and UI | Working showcase layer |
+| Public repo | Architecture, screenshots, and positioning only |
+| Production rollout | Private pilot / deployment discussion |
+
+No client documents are included in this repository.
+
+---
+
+## What Is Not Public
+
+The following are intentionally not published:
+
+- Core engine source code
+- Client documents or restricted examples
+- Retrieval algorithms and ranking internals
+- Model choices and prompt logic
+- Indexing schema and raw document nodes
+- Evaluation data and deployment configuration
+
+This protects the implementation while still showing what the system is built to achieve.
 
 ---
 
 ## Contact
 
-This repository contains architecture documentation only.  
-Implementation is proprietary.
-
-For serious inquiries — regulatory organizations, enterprise compliance teams, or domain-specific deployments:
+For private demos, pilots, or domain-specific deployments:
 
 **LinkedIn:** [Hassan Abdullah](https://www.linkedin.com/in/hassan--abdullah)

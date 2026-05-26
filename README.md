@@ -1,143 +1,194 @@
-# Citation-Critical RAG
+![Evidence RAG banner](docs/assets/evidence-rag-banner.svg)
 
-**A private core engine for answers that need evidence, not just confidence.**
+# Evidence RAG
+
+**Citation traceability for high-stakes documents. Built around a private hybrid evidence retrieval core.**
 
 ![Status](https://img.shields.io/badge/status-private%20MVP-6f63ff?style=flat-square)
-![Use case](https://img.shields.io/badge/use%20case-citation%20traceability-111827?style=flat-square)
-![Backend](https://img.shields.io/badge/backend-FastAPI-009688?style=flat-square)
-![Frontend](https://img.shields.io/badge/frontend-React-61DAFB?style=flat-square)
-![License](https://img.shields.io/badge/license-proprietary-red?style=flat-square)
+![Use case](https://img.shields.io/badge/use%20case-evidence%20retrieval-111827?style=flat-square)
+![Core](https://img.shields.io/badge/core-private-red?style=flat-square)
+![Demo](https://img.shields.io/badge/demo-synthetic%20data-22c55e?style=flat-square)
+![Stack](https://img.shields.io/badge/showcase-FastAPI%20%2B%20React-0ea5e9?style=flat-square)
 
-Most AI document systems can produce a fluent answer.
+> Generic RAG finds similar text. Evidence RAG is designed to return traceable support.
 
-Citation-critical work needs something harder: the exact supporting text, from the exact document location, with enough traceability for an auditor, reviewer, counsel, regulator, or risk team to verify it.
+This repository is a **public product and architecture showcase** for a private citation-critical RAG engine. It explains the problem, shows the public demo, and describes the approach at a safe level without exposing the proprietary implementation.
 
-This project is a private core engine for regulated-document question answering where citations are evidence, not decoration.
-
-> Public note: this repository is intentionally a showcase and architecture overview. The core implementation, client data, prompts, retrieval internals, model choices, indexing schema, and production pipeline details are private.
+No client documents, restricted examples, prompts, model choices, ranking logic, raw nodes, or indexing schemas are included.
 
 ---
 
-## Demo Preview
+## Quick Scan
 
-The public demo uses synthetic banking/compliance content so the product can be shown without exposing restricted client material.
-
-### Pipeline observability
-
-![Pipeline observability](docs/assets/pipeline-observatory.png)
-
-### Citation answer with source traceability
-
-![Citation chat](docs/assets/citation-chat.png)
-
-### Answer-focused view
-
-![Citation answer](docs/assets/citation-answer.png)
+| What it is | What it is not |
+|---|---|
+| A product-facing showcase for a private evidence retrieval engine | An open-source RAG library |
+| A demo of citation traceability over synthetic compliance content | A release of the private core implementation |
+| A structure-aware, metadata-aware retrieval concept | A generic chat-with-PDF wrapper |
+| A way to explain and validate the product direction | A benchmark claim or production SLA |
 
 ---
 
 ## The Problem
 
-In regulated domains, a citation is not a footnote. It is the evidence trail.
+Most document AI demos optimize for a fluent answer.
 
-Generic RAG systems often fail in ways that look acceptable in a demo but break down under review:
+High-stakes document workflows need something stricter:
 
-- The answer is paraphrased instead of extracted.
-- The cited source is too broad to verify quickly.
-- Page, section, subsection, and document lineage are incomplete.
-- Retrieved fragments lose the surrounding document structure.
-- The system answers even when the exact support is not present.
+| In simple document chat | In regulated document work |
+|---|---|
+| A good summary may be enough | The exact source text matters |
+| Similar chunks can be useful | The right section and scope matter |
+| A broad citation may pass | Page, section, and subsection matter |
+| Generic retrieval can work | Metadata and authority matter |
 
-That is risky for compliance, legal, audit, policy, procurement, financial services, pharma, defense, and other document-heavy workflows where the source text is the authority.
-
----
-
-## What This Engine Is Built To Do
-
-Citation-Critical RAG is designed to turn long structured documents into a queryable evidence layer.
-
-It focuses on:
-
-- Preserving document hierarchy instead of flattening everything into plain text.
-- Keeping page, section, subsection, title, document, authority, and domain metadata attached to evidence.
-- Retrieving the most relevant evidence units with their surrounding context.
-- Returning verbatim supporting text where possible.
-- Showing source cards that make review fast and inspectable.
-- Avoiding unsupported answers when the source evidence is not available.
-
-The goal is not to replace expert review. The goal is to make expert review faster, more traceable, and less dependent on manually hunting through long documents.
+If the system loses structure, the answer can sound correct while still being unsafe to trust.
 
 ---
 
-## What Makes This Different From A Basic RAG Demo
+## Product Contract
 
-Basic RAG usually treats a document as text to search.
+Every useful answer should make review easier.
 
-This engine treats a document as a structured source of authority.
+| Evidence field | Why it matters |
+|---|---|
+| Source document | Confirms the answer came from the right file |
+| Section and subsection | Preserves document hierarchy |
+| Page | Gives a stable review anchor |
+| Exact cited passage | Keeps the answer grounded |
+| Applied filters | Shows scope and retrieval boundaries |
 
-| Requirement | Basic document chat | Citation-critical engine |
-|---|---|---|
-| Document structure | Often flattened | Preserved as part of retrieval context |
-| Citations | Often decorative | Treated as the primary output contract |
-| Answers | Often summarized | Designed around verbatim evidence |
-| Source location | Sometimes broad | Section, subsection, page, document |
-| Review workflow | User must verify manually | Evidence is surfaced beside the answer |
-| Domain fit | Generic | Configured per regulated corpus |
+The goal is not to replace expert review. The goal is to make expert review faster, more traceable, and less manual.
+
+---
+
+## Demo Preview
+
+The public demo uses **synthetic banking and compliance content**.
+
+| Pipeline observability | Citation chat |
+|---|---|
+| ![Pipeline observability](docs/assets/pipeline-observatory.png) | ![Citation chat](docs/assets/citation-chat.png) |
+
+| Answer-focused view |
+|---|
+| ![Citation answer](docs/assets/citation-answer.png) |
+
+---
+
+## Retrieval Approach Comparison
+
+![Hybrid evidence retrieval comparison](docs/assets/hybrid-evidence-retrieval-graphic.png)
+
+| Approach | Main idea | Strength | Common gap |
+|---|---|---|---|
+| Generic vector RAG | Retrieve semantically similar chunks | Fast to build and useful for broad Q&A | Can lose hierarchy, exact wording, and scope |
+| PageIndex-style retrieval | Navigate document structure instead of flat chunks | Strong for long structured documents | Structure alone may not cover exact terms, filtering, or corpus scale |
+| Location-first citation RAG | Store and return page, line, or paragraph anchors | Makes citations visible | Location is not enough without hierarchy and context |
+| Evidence RAG | Combine structure, metadata, retrieval signals, filters, and citation extraction | Built for traceable answers in high-stakes documents | Requires domain-specific validation and careful configuration |
+
+## Capability Matrix
+
+Legend: Yes = native strength, Partial = possible but not always central, No = usually missing or weak in the default pattern.
+
+| Capability | Generic RAG | PageIndex-style | Location-first Citation RAG | Evidence RAG |
+|---|---:|---:|---:|---:|
+| Semantic similarity search | Yes | Partial | Yes | Yes |
+| Exact-term / keyword retrieval | Partial | Partial | Partial | Yes |
+| Document hierarchy preserved | No | Yes | Partial | Yes |
+| Section and subsection awareness | Partial | Yes | Partial | Yes |
+| Page-level traceability | Partial | Partial | Yes | Yes |
+| Source coordinates visible | Partial | Partial | Yes | Yes |
+| Metadata before retrieval | Partial | Partial | Partial | Yes |
+| Filter by document type, authority, region, or domain | Partial | Partial | Partial | Yes |
+| Parent context available during answer | Partial | Yes | Partial | Yes |
+| Works across many scoped documents | Partial | Partial | Partial | Designed for it |
+| Handles exact regulatory / policy wording | Partial | Partial | Partial | Yes |
+| Citation treated as output contract | No | Partial | Yes | Yes |
+| Answer linked to reviewable evidence | Partial | Partial | Yes | Yes |
+| Public demo without private core exposure | Not specific | Not specific | Not specific | Yes |
+
+```text
+Generic RAG                 -> Similarity-first
+PageIndex-style retrieval   -> Structure-first
+Location-first citation RAG -> Coordinate-first
+Evidence RAG                -> Evidence-first hybrid retrieval
+```
+
+---
+
+## Hybrid Evidence Retrieval
+
+Evidence RAG uses the hybrid direction as the product thesis:
+
+```mermaid
+flowchart LR
+    A["Document Structure"] --> F["Traceable Evidence"]
+    B["Metadata Scope"] --> F
+    C["Semantic Retrieval"] --> F
+    D["Exact-Term Retrieval"] --> F
+    E["Citation Rules"] --> F
+    F --> G["Answer + Source Cards"]
+```
+
+Why hybrid?
+
+| Signal | What it protects |
+|---|---|
+| Structure | Section hierarchy, parent context, document meaning |
+| Metadata | Authority, document type, region, domain, version |
+| Semantic retrieval | User intent and paraphrased questions |
+| Exact-term retrieval | Acronyms, control names, legal phrases, technical terms |
+| Filters | Wrong-document and wrong-scope retrieval |
+| Citation extraction | Verifiable final output |
 
 ---
 
 ## Public-Safe Architecture
 
-The full implementation is private, but the operating shape is simple to understand:
-
-```text
-Structured document
-        |
-        v
-Structure normalization
-        |
-        v
-Traceable content segmentation
-        |
-        v
-Metadata attachment and quality checks
-        |
-        v
-Searchable evidence index
-        |
-        v
-Filtered evidence retrieval
-        |
-        v
-Verbatim citation extraction
-        |
-        v
-Answer with source cards
+```mermaid
+flowchart TD
+    A["Structured Document Input"] --> B["Structure Normalization"]
+    B --> C["Traceable Content Segmentation"]
+    C --> D["Metadata Attachment"]
+    D --> E["Quality Checks"]
+    E --> F["Searchable Evidence Layer"]
+    F --> G["Scoped Evidence Retrieval"]
+    G --> H["Controlled Citation Extraction"]
+    H --> I["Answer with Source Traceability"]
 ```
 
-The public observability layer exposes high-level progress only: loaded, normalized, segmented, metadata attached, quality checks completed, search index ready, and citation engine ready.
+The showcase UI exposes sanitized observability only:
 
-It intentionally does not expose proprietary mechanics.
+| Stage | Public signal |
+|---|---|
+| Load | Document received |
+| Normalize | Structure prepared |
+| Segment | Content organized into evidence units |
+| Enrich | Metadata attached |
+| Validate | Quality checks completed |
+| Index | Search layer ready |
+| Cite | Citation engine ready |
+
+Private internals stay private.
 
 ---
 
-## Example Outputs
+## Example: Basic RAG vs Evidence RAG
 
-The examples below use synthetic compliance text. They are meant to show the output contract: not "probably correct", but traceable to an exact document location.
-
-### Example 1: Vendor onboarding
+### Query
 
 ```text
 What controls are required before onboarding a high-risk vendor?
 ```
 
-Generic AI / basic RAG might return:
+### Basic RAG-style answer
 
 ```text
 High-risk vendors require enhanced due diligence, approval, and documented control checks before onboarding.
 ```
 
-Citation-Critical RAG returns:
+### Evidence RAG-style answer
 
 ```text
 Section 5.2 "Enhanced Due Diligence",
@@ -151,110 +202,105 @@ Subsection 5.2.2 "Required Control Evidence", Page 32
 - The vendor risk assessment must identify service criticality, data access level, geographic exposure, and dependency on subcontractors.
 - The business owner must obtain evidence of information security controls, financial stability, business continuity capability, and sanctions screening.
 - Legal and compliance review must be completed before contract execution when the vendor handles confidential customer or transaction data.
-- Any unresolved control gaps must be recorded with an accountable owner, target remediation date, and risk acceptance approval.
 ```
 
-### Example 2: Policy exceptions
+---
+
+## More Synthetic Examples
+
+<details>
+<summary><strong>Policy exception approval</strong></summary>
+
+**Question**
 
 ```text
 Who can approve a policy exception?
 ```
 
-Generic AI / basic RAG might return:
+**Basic answer**
 
 ```text
 Policy exceptions usually need approval from compliance or a risk owner.
 ```
 
-Citation-Critical RAG returns:
+**Evidence answer**
 
 ```text
 Section 7.4 "Policy Exceptions",
 Subsection 7.4.2 "Approval Authority", Page 58
 
 "Exceptions to mandatory controls must be approved by the accountable business owner, the control owner, and Compliance before the exception becomes active."
-
-Section 7.4 "Policy Exceptions",
-Subsection 7.4.3 "Exception Register", Page 59
-
-"Each approved exception must include a documented business justification, expiration date, compensating control, and named accountable owner."
 ```
 
-### Example 3: Evidence review
+</details>
+
+<details>
+<summary><strong>Ongoing monitoring frequency</strong></summary>
+
+**Question**
 
 ```text
 How often should high-risk vendors be reviewed?
 ```
 
-Generic AI / basic RAG might return:
+**Basic answer**
 
 ```text
 High-risk vendors should be reviewed regularly, typically once per year.
 ```
 
-Citation-Critical RAG returns:
+**Evidence answer**
 
 ```text
 Section 6.1 "Ongoing Monitoring",
 Subsection 6.1.3 "Periodic Review", Page 44
 
 "High-risk vendors must be reviewed at least annually, or sooner when a material service, control environment, or ownership change is identified."
-
-Section 6.1 "Ongoing Monitoring",
-Subsection 6.1.4 "Monitoring Evidence", Page 45
-
-"Monitoring evidence must include updated risk ratings, control attestations, issue status, and confirmation that residual risk remains within approved tolerance."
 ```
 
-This is the behavior the engine is designed around: exact location, exact source language, and evidence that can be reviewed.
+</details>
 
 ---
 
 ## Where This Fits
 
-This pattern is useful anywhere documents are the source of truth:
-
-- Financial compliance and policy review
-- Vendor risk and third-party risk management
-- Legal and contract review
-- Pharmaceutical and clinical documentation
-- Internal audit and control evidence
-- Defense, procurement, and regulated operations
-- Technical regulatory review
-
-The architecture is domain-adaptable, but not magic. Each serious deployment needs corpus-specific metadata, parsing assumptions, evaluation, and validation.
+| Domain | Why evidence traceability matters |
+|---|---|
+| Banking and compliance | Controls, policies, obligations, audit readiness |
+| Legal and contracts | Clauses, exceptions, definitions, governing language |
+| Pharma and clinical | Protocols, submissions, safety language, review trails |
+| Insurance | Policy wording, exclusions, claims rules |
+| Vendor risk | Due diligence, monitoring, control evidence |
+| Audit | Source-backed findings and review documentation |
+| Technical standards | Exact requirements and section references |
 
 ---
 
 ## Current Status
 
-This is a working private MVP, not a public open-source library.
-
 | Area | Status |
 |---|---|
-| Core document pipeline | Working private implementation |
-| Citation extraction | Working private implementation |
-| Filtered retrieval | Working private implementation |
+| Private core pipeline | Working MVP |
+| Citation extraction | Working MVP |
+| Filtered retrieval | Working MVP |
 | Demo API and UI | Working showcase layer |
-| Public repo | Architecture, screenshots, and positioning only |
-| Production rollout | Private pilot / deployment discussion |
-
-No client documents are included in this repository.
+| Public repository | Product brief and screenshots |
+| Client data | Not included |
+| Production deployment | Private pilot discussion |
 
 ---
 
-## What Is Not Public
+## What Stays Private
 
-The following are intentionally not published:
-
-- Core engine source code
-- Client documents or restricted examples
-- Retrieval algorithms and ranking internals
-- Model choices and prompt logic
-- Indexing schema and raw document nodes
-- Evaluation data and deployment configuration
-
-This protects the implementation while still showing what the system is built to achieve.
+| Private asset | Reason |
+|---|---|
+| Core engine source code | Product IP |
+| Prompts and extraction rules | Retrieval and citation quality |
+| Model choices | Implementation detail |
+| Ranking and retrieval internals | Competitive advantage |
+| Indexing schema and raw nodes | Pipeline detail |
+| Client documents | Confidentiality |
+| Evaluation data | Private validation material |
 
 ---
 

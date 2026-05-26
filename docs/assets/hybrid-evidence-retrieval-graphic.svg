@@ -1,0 +1,106 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#080A0F"/>
+      <stop offset="0.52" stop-color="#111827"/>
+      <stop offset="1" stop-color="#1E1B4B"/>
+    </linearGradient>
+    <linearGradient id="hybrid" x1="1180" y1="136" x2="1456" y2="788" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="0.52" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <filter id="shadow" x="-18%" y="-18%" width="136%" height="136%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="26" flood-color="#000000" flood-opacity="0.34"/>
+    </filter>
+    <style>
+      .title { font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 62px; font-weight: 850; fill: #F8FAFC; letter-spacing: -1px; }
+      .subtitle { font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 24px; font-weight: 500; fill: #CBD5E1; }
+      .label { font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 24px; font-weight: 800; fill: #F8FAFC; }
+      .small { font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 17px; font-weight: 600; fill: #CBD5E1; }
+      .muted { font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 15px; font-weight: 600; fill: #94A3B8; }
+      .pill { font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 14px; font-weight: 800; letter-spacing: .4px; fill: #DDE8FF; }
+      .check { font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 19px; font-weight: 800; fill: #E2E8F0; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1264" cy="184" r="210" fill="#312E81" opacity="0.22"/>
+  <circle cx="266" cy="770" r="230" fill="#155E75" opacity="0.18"/>
+  <path d="M0 746C202 648 404 678 586 724C806 780 1008 782 1212 690C1354 626 1474 612 1600 636V900H0V746Z" fill="#0F172A" opacity="0.64"/>
+
+  <g>
+    <rect x="84" y="72" width="226" height="36" rx="18" fill="#111827" stroke="#334155"/>
+    <circle cx="108" cy="90" r="6" fill="#22C55E"/>
+    <text x="126" y="96" class="pill">ARTICLE GRAPHIC</text>
+    <text x="84" y="174" class="title">From RAG to Evidence Retrieval</text>
+    <text x="88" y="220" class="subtitle">High-stakes documents need more than similarity search.</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="84" y="306" width="320" height="384" rx="22" fill="#0B1020" stroke="#243047"/>
+    <rect x="116" y="338" width="128" height="30" rx="15" fill="#1E293B"/>
+    <text x="134" y="359" class="pill">STEP 1</text>
+    <text x="116" y="418" class="label">Generic RAG</text>
+    <text x="116" y="462" class="small">Similarity-first</text>
+    <path d="M116 500H370" stroke="#334155"/>
+    <text x="116" y="542" class="check">+ Fast to build</text>
+    <text x="116" y="584" class="check">+ Good broad Q&amp;A</text>
+    <text x="116" y="626" class="muted">- Can lose hierarchy</text>
+    <text x="116" y="660" class="muted">- Citations may be weak</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="448" y="306" width="320" height="384" rx="22" fill="#0B1020" stroke="#243047"/>
+    <rect x="480" y="338" width="128" height="30" rx="15" fill="#1E293B"/>
+    <text x="498" y="359" class="pill">STEP 2</text>
+    <text x="480" y="418" class="label">PageIndex-Style</text>
+    <text x="480" y="462" class="small">Structure-first</text>
+    <path d="M480 500H734" stroke="#334155"/>
+    <text x="480" y="542" class="check">+ Preserves document map</text>
+    <text x="480" y="584" class="check">+ Strong for long docs</text>
+    <text x="480" y="626" class="muted">- Latency can rise</text>
+    <text x="480" y="660" class="muted">- Needs more signals</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="812" y="306" width="320" height="384" rx="22" fill="#0B1020" stroke="#243047"/>
+    <rect x="844" y="338" width="128" height="30" rx="15" fill="#1E293B"/>
+    <text x="862" y="359" class="pill">STEP 3</text>
+    <text x="844" y="418" class="label">Citation RAG</text>
+    <text x="844" y="462" class="small">Location-first</text>
+    <path d="M844 500H1098" stroke="#334155"/>
+    <text x="844" y="542" class="check">+ Page/line anchors</text>
+    <text x="844" y="584" class="check">+ Easier review trail</text>
+    <text x="844" y="626" class="muted">- Location is not context</text>
+    <text x="844" y="660" class="muted">- Retrieval may stay shallow</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="1176" y="286" width="340" height="424" rx="28" fill="#080C18" stroke="url(#hybrid)" stroke-width="2.5"/>
+    <rect x="1208" y="320" width="162" height="30" rx="15" fill="url(#hybrid)" opacity="0.95"/>
+    <text x="1226" y="341" fill="#06111C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="900" letter-spacing=".4">TARGET LANE</text>
+    <text x="1208" y="416" class="label">Evidence RAG</text>
+    <text x="1208" y="460" class="small">Hybrid evidence retrieval</text>
+    <path d="M1208 498H1482" stroke="#475569"/>
+    <text x="1208" y="540" class="check">Structure + hierarchy</text>
+    <text x="1208" y="580" class="check">Metadata + scope</text>
+    <text x="1208" y="620" class="check">Semantic + exact terms</text>
+    <text x="1208" y="660" class="check">Filters + source cards</text>
+    <text x="1208" y="700" fill="#FDE68A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="850">Answer with proof</text>
+  </g>
+
+  <path d="M404 498H448" stroke="#64748B" stroke-width="2"/>
+  <path d="M768 498H812" stroke="#64748B" stroke-width="2"/>
+  <path d="M1132 498H1176" stroke="#64748B" stroke-width="2"/>
+  <path d="M438 498L424 490V506L438 498Z" fill="#64748B"/>
+  <path d="M802 498L788 490V506L802 498Z" fill="#64748B"/>
+  <path d="M1166 498L1152 490V506L1166 498Z" fill="#64748B"/>
+
+  <g>
+    <rect x="324" y="770" width="952" height="54" rx="27" fill="#111827" stroke="#334155"/>
+    <text x="374" y="805" fill="#E2E8F0" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="800">
+      The shift: from retrieving similar text to returning reviewable evidence.
+    </text>
+  </g>
+</svg>
